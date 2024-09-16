@@ -854,6 +854,60 @@ pub struct MspSettingInfo {
     // pub value: [u8; ?]
 }
 
+#[derive(PackedStruct, Debug, Copy, Clone)]
+#[packed_struct(endian = "lsb", bit_numbering = "msb0")]
+pub struct MspVtxConfig {
+    pub vtx_type: u8,
+    pub band_index: u8,
+    pub channel_index: u8,
+    pub power_index: u8,
+    #[packed_field(size_bytes = "1")]
+    pub pit_mode: bool,
+    pub frequency: u16,
+    #[packed_field(size_bytes = "1")]
+    pub device_is_ready: bool,
+    pub low_power_disarm: u8,
+    pub pit_mode_freq: u16,
+
+    #[packed_field(size_bytes = "1")]
+    pub use_vtx_table: bool,
+    
+    pub bands: u8,
+    pub channels: u8,
+    pub power_levels: u8,
+}
+
+#[derive(PackedStruct, Debug, Copy, Clone)]
+#[packed_struct(endian = "lsb", bit_numbering = "msb0")]
+pub struct MspVtxSetConfig {
+    pub frequency: u16,
+    pub power_level_index: u8,
+    #[packed_field(size_bytes = "1")]
+    pub pit_mode: bool,
+}
+
+#[derive(PackedStruct, Debug, Copy, Clone)]
+#[packed_struct(endian = "lsb", bit_numbering = "msb0")]
+pub struct MspVtxTableBand {
+    pub band: u8,
+    pub name_length: u8,
+    pub name: [u8; 8],
+    pub letter: u8,
+    #[packed_field(size_bytes = "1")]
+    pub is_factory_band: bool,
+    pub channels: u8,
+    pub frequency: [u16; 8],
+}
+
+#[derive(PackedStruct, Debug, Copy, Clone)]
+#[packed_struct(endian = "lsb", bit_numbering = "msb0")]
+pub struct MspVtxTablePowerlevel {
+    pub power_level: u8,
+    pub power_value: u16,
+    pub label_length: u8,
+    pub label: [u8; 3],
+}
+
 #[test]
 fn test_mixer() {
     use packed_struct::prelude::*;

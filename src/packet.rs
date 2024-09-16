@@ -13,6 +13,7 @@ pub enum MspPacketParseError {
     InvalidHeader2,
     InvalidDirection,
     InvalidDataLength,
+    PartialPacket
 }
 
 /// Packet's desired destination
@@ -251,6 +252,19 @@ impl MspParser {
         }
 
         Ok(None)
+    }
+
+    pub fn parse_buf(&mut self, buf: &[u8]) -> Result<MspPacket, MspPacketParseError> {
+        for &byte in buf {
+            match self.parse(byte) {
+                Ok(Some(packet)) => return Ok(packet),
+                Ok(None) => {}
+                Err(err) => return Err(err),
+            }
+        }
+
+        self.reset();
+        Err(MspPacketParseError::PartialPacket)
     }
 
     pub fn reset(&mut self) {

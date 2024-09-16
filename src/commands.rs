@@ -155,6 +155,11 @@ pub enum MspCommandCode {
     MSP_BF_BUILD_INFO = 69, // build date as well as some space for future expansion,
 
     // Betaflight
+    MSP_VTX_CONFIG = 88,
+    MSP_SET_VTX_CONFIG = 89,
+    MSP_VTXTABLE_BAND = 137,
+    MSP_VTXTABLE_POWERLEVEL = 138,
+
     MSP_ADVANCED_CONFIG = 90,
     MSP_SET_ADVANCED_CONFIG = 91,
 
