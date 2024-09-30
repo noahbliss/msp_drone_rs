@@ -880,7 +880,7 @@ pub struct MspVtxConfig {
 #[derive(PackedStruct, Debug, Copy, Clone)]
 #[packed_struct(endian = "lsb", bit_numbering = "msb0")]
 pub struct MspVtxSetConfig {
-    pub frequency: u16,
+    pub frequency_or_band_channel: u16,
     pub power_level_index: u8,
     #[packed_field(size_bytes = "1")]
     pub pit_mode: bool,
