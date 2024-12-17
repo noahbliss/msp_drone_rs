@@ -1,11 +1,12 @@
 [package]
-name = "multiwii_serial_protocol_v2"
+name = "msp_drone_rs"
 description = "A Multiwii Serial Protocol (MSP) implementation for Rust"
 repository = "https://github.com/amfern/multiwii_serial_protocol.rs"
-version = "0.1.12"
+version = "0.1.13"
 authors = [
     "Rudi Benkovic <rudi.benkovic@gmail.com>",
     "Ilya Guterman <amfernusus@gmail.com>",
+    "Anonymous"
 ]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
@@ -19,7 +20,7 @@ crc-any = { version = "2.5", default-features = false }
 heapless = "0.8"
 
 [features]
-default = ["std"]
+default = ["no_std"]
 std = ["packed_struct/std"]
 no_std = []
 suppport_int32_setting_type = []

@@ -13,7 +13,7 @@ pub enum MspPacketParseError {
     InvalidHeader2,
     InvalidDirection,
     InvalidDataLength,
-    PartialPacket
+    PartialPacket,
 }
 
 /// Packet's desired destination
@@ -44,7 +44,7 @@ impl MspPacketDirection {
 pub struct MspPacket {
     pub cmd: u16,
     pub direction: MspPacketDirection,
-    pub data: Vec<u8, 255>,
+    pub data: Option<Vec<u8, 255>>,
 }
 
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -242,7 +242,7 @@ impl MspParser {
                 let packet = MspPacket {
                     cmd: self.packet_cmd,
                     direction: self.packet_direction,
-                    data: n,
+                    data: Some(n),
                 };
 
                 self.reset();
@@ -287,12 +287,14 @@ impl Default for MspParser {
 impl MspPacket {
     /// Number of bytes that this packet requires to be packed
     pub fn packet_size_bytes(&self) -> usize {
-        6 + self.data.len()
+        let data_len = self.data.as_ref().map(|d| d.len()).unwrap_or(0);
+        6 + data_len
     }
 
     /// Number of bytes that this packet requires to be packed
     pub fn packet_size_bytes_v2(&self) -> usize {
-        9 + self.data.len()
+        let data_len = self.data.as_ref().map(|d| d.len()).unwrap_or(0);
+        9 + data_len
     }
 
     /// Serialize to network bytes
@@ -302,19 +304,25 @@ impl MspPacket {
         if l != self.packet_size_bytes() {
             return Err(MspPacketParseError::OutputBufferSizeMismatch);
         }
-
+        let data_len = self.data.as_ref().map(|d| d.len()).unwrap_or(0);
         output[0] = b'$';
         output[1] = b'M';
         output[2] = self.direction.to_byte();
-        output[3] = self.data.len() as u8;
+        output[3] = data_len as u8;
         output[4] = self.cmd as u8;
 
-        output[5..l - 1].copy_from_slice(&self.data);
+        if let Some(data) = self.data.as_ref() {
+            output[5..l - 1].copy_from_slice(data);
+        }
+        // output[5..l - 1].copy_from_slice(&self.data);
 
         let mut crc = output[3] ^ output[4];
-        for b in &*self.data {
-            crc ^= *b;
+        if let Some(data) = self.data.as_ref() {
+            for b in &*data {
+                crc ^= *b;
+            }
         }
+
         output[l - 1] = crc;
 
         Ok(())
@@ -327,15 +335,18 @@ impl MspPacket {
         if l != self.packet_size_bytes_v2() {
             return Err(MspPacketParseError::OutputBufferSizeMismatch);
         }
-
+        let data_len = self.data.as_ref().map(|d| d.len()).unwrap_or(0);
         output[0] = b'$';
         output[1] = b'X';
         output[2] = self.direction.to_byte();
         output[3] = 0;
         output[4..6].copy_from_slice(&self.cmd.to_le_bytes());
-        output[6..8].copy_from_slice(&(self.data.len() as u16).to_le_bytes());
-
-        output[8..l - 1].copy_from_slice(&self.data);
+        output[6..8].copy_from_slice(&(data_len as u16).to_le_bytes());
+        // output[6..8].copy_from_slice(&(self.data.len() as u16).to_le_bytes());
+        if let Some(data) = self.data.as_ref() {
+            output[8..l - 1].copy_from_slice(data);
+        }
+        // output[8..l - 1].copy_from_slice(&self.data);
 
         let mut crc = CRCu8::crc8dvb_s2();
         crc.digest(&output[3..l - 1]);
