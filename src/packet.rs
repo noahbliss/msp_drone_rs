@@ -297,7 +297,7 @@ impl MspPacket {
         9 + data_len
     }
 
-    /// Serialize to network bytes
+    /// Serialize to network bytes NOTE! The output buffer must be the exact size of the packet you will send! (6 for cmd v1, larger if you have data)
     pub fn serialize(&self, output: &mut [u8]) -> Result<(), MspPacketParseError> {
         let l = output.len();
 
@@ -328,7 +328,7 @@ impl MspPacket {
         Ok(())
     }
 
-    /// Serialize to network bytes
+    /// Serialize to network bytes NOTE! The output buffer must be the exact size of the packet you will send! (9 for cmd v2, larger if you have data)
     pub fn serialize_v2(&self, output: &mut [u8]) -> Result<(), MspPacketParseError> {
         let l = output.len();
 
