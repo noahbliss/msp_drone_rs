@@ -288,12 +288,13 @@ pub struct MspBatteryState {
     /// mAh
     pub battery_capacity: u16,
 
-    pub battery_voltage: u8,
+    pub legacy_battery_voltage: u8,
     pub mah_drawn: u16,
     /// 0.01A
     pub amperage: i16,
 
     pub alerts: u8,
+    pub battery_voltage: u16,
 }
 
 #[derive(PackedStruct, Serialize, Deserialize, Debug, Copy, Clone, Default)]
@@ -339,6 +340,28 @@ pub struct MspRcChannelValue {
     pub value: u16,
 }
 
+#[derive(PackedStruct, Serialize, Deserialize, Debug, Copy, Clone, Default)]
+#[packed_struct(endian = "lsb")]
+pub struct MspRc {
+    pub roll: u16,
+    pub pitch: u16,
+    pub yaw: u16,
+    pub throttle: u16,
+    pub aux1: u16,
+    pub aux2: u16,
+    pub aux3: u16,
+    pub aux4: u16,
+    // pub aux5: u16,
+    // pub aux6: u16,
+    // pub aux7: u16,
+    // pub aux8: u16,
+    // pub aux9: u16,
+    // pub aux10: u16,
+    // pub aux11: u16,
+    // pub aux12: u16,
+}
+pub use MspRc as MspSetRawRc; //same structure, but including for completeness.
+
 #[derive(PrimitiveEnum, Serialize, Deserialize, Debug, Copy, Clone, PartialEq)]
 pub enum MspRcChannel {
     /// Ailerons
@@ -370,6 +393,22 @@ pub enum MspRcChannel {
 pub struct MspRcMappedChannel {
     #[packed_field(size_bits = "8", ty = "enum")]
     pub channel: MspRcChannel,
+}
+
+#[derive(PackedStruct, Serialize, Deserialize, Debug, Copy, Clone, Default)]
+#[packed_struct(endian = "lsb")]
+pub struct MspRawGps {
+    /// 0 for no fix, 1 for Fix.
+    pub fix: u8,
+    pub num_sat: u8,
+    pub lat: u32, // 1 / 10 000 000 deg
+    pub lon: u32, // 1 / 10 000 000 deg
+    /// Altitude in meters
+    pub alt: u16, // m
+    /// Speed in cm/s
+    pub speed: u16,
+    pub ground_course: u16, // degree*10
+    pub hdop: u16,          // hdop
 }
 
 #[derive(PackedStruct, Serialize, Deserialize, Debug, Copy, Clone, Default)]
@@ -871,7 +910,7 @@ pub struct MspVtxConfig {
 
     #[packed_field(size_bytes = "1")]
     pub use_vtx_table: bool,
-    
+
     pub bands: u8,
     pub channels: u8,
     pub power_levels: u8,

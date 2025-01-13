@@ -1,6 +1,8 @@
+use num_enum::{IntoPrimitive, TryFromPrimitive};
 use packed_struct_codegen::PrimitiveEnum;
 
-#[derive(PrimitiveEnum, Debug, Copy, Clone, PartialEq)]
+#[derive(PrimitiveEnum, TryFromPrimitive, IntoPrimitive, Debug, Copy, Clone, PartialEq)]
+#[repr(u16)]
 #[allow(non_camel_case_types)]
 
 /// MSP command values, used for command encapsulation
